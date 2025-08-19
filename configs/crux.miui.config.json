@@ -2,8 +2,8 @@
   {
     "kernelSource": {
       "name": "MIUI",
-      "repo": "https://github.com/DawnT112/crux-marisa.git",
-      "branch": "marisa-4.14.336",
+      "repo": "https://github.com/Laulan56/android_kernel_xiaomi_sm8150.git",
+      "branch": "crux",
       "device": "crux",
       "defconfig": "crux_defconfig"
     },
@@ -14,7 +14,7 @@
     "toolchains": [
       {
         "repo": "https://github.com/kdrag0n/proton-clang",
-        "branch": "main",
+        "branch": "master",
         "name": "tools",
         "binaryEnv": ["toolclang/proton-clang/bin","toolgcc/bin"]
       }
