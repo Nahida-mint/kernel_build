@@ -2,10 +2,10 @@
   {
     "kernelSource": {
       "name": "MIUI",
-      "repo": "https://github.com/SlackerState/android_kernel_xiaomi_sm6150",
-      "branch": "phoenix-r-oss",
-      "device": "phoenix_ztc1997",
-      "defconfig": "vendor/phoenix_ztc1997_defconfig"
+      "repo": "https://github.com/DawnT112/crux-marisa.git",
+      "branch": "marisa-4.14.336",
+      "device": "crux",
+      "defconfig": "crux_defconfig"
     },
     "enableCcache": true,
     "enableKernelSU": true,
