@@ -42,7 +42,7 @@
       "use": true,
       "release": true,
       "custom":{
-        "repo": "https://github.com/luyanci/AnyKernel3",
+        "repo": "https://github.com/SlackerState/AnyKernel3.git",
         "branch": "master"
       }
     }
