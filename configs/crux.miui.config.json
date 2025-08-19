@@ -13,28 +13,28 @@
     "enableLXC": false,
     "toolchains": [
       {
-        "repo": "https://github.com/luyanci/kernel_bulid",
+        "repo": "https://github.com/kdrag0n/proton-clang",
         "branch": "main",
         "name": "tools",
-        "binaryEnv": ["toolclang/clang-r428724/bin","toolgcc/bin"]
+        "binaryEnv": ["toolclang/proton-clang/bin","toolgcc/bin"]
       }
     ],
     "params": {
       "ARCH": "arm64",
-      "CC": "tools/toolclang/clang-r428724/bin/clang",
+      "CC": "tools/toolclang/proton-clang/bin/clang",
       "externalCommands": {
         "CROSS_COMPILE": "tools/toolgcc/bin/aarch64-linux-android-",
         "CROSS_COMPILE_ARM32": "tools/toolgcc/arm/bin/arm-linux-androideabi-",
         "CROSS_COMPILE_COMPAT":"",
         "CLANG_TRIPLE": "aarch64-linux-gnu-",
-        "AR": "tools/toolclang/clang-r428724/bin/llvm-ar",
+        "AR": "tools/toolclang/proton-clang/bin/llvm-ar",
         "HOSTCC":"gcc",
-        "HOSTCXX":"tools/toolclang/clang-r428724/bin/clang++",
-        "NM":"tools/toolclang/clang-r428724/bin/llvm-nm" ,
-        "OBJCOPY":"tools/toolclang/clang-r428724/bin/llvm-objcopy",
-        "OBJDUMP":"tools/toolclang/clang-r428724/bin/llvm-objdump",
-        "STRIP":"tools/toolclang/clang-r428724/bin/llvm-strip",
-        "LD":"tools/toolclang/clang-r428724/bin/ld.lld",
+        "HOSTCXX":"tools/toolclang/proton-clang/bin/clang++",
+        "NM":"tools/toolclang/proton-clang/bin/llvm-nm" ,
+        "OBJCOPY":"tools/toolclang/proton-clang/bin/llvm-objcopy",
+        "OBJDUMP":"tools/toolclang/proton-clang/bin/llvm-objdump",
+        "STRIP":"tools/toolclang/proton-clang/bin/llvm-strip",
+        "LD":"tools/toolclang/proton-clang/bin/ld.lld",
         "DTC_EXT":"tools/dtc"
       }
     },
