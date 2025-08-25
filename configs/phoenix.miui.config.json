@@ -5,7 +5,7 @@
       "repo": "https://github.com/DawnT112/xturbo.git",
       "branch": "crux",
       "device": "crux",
-      "defconfig": "crux_defconfig"
+      "defconfig": "crux_stock_defconfig"
     },
     "enableCcache": true,
     "enableKernelSU": true,
