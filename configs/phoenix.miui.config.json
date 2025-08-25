@@ -2,10 +2,10 @@
   {
     "kernelSource": {
       "name": "MIUI",
-      "repo": "https://github.com/DawnT112/crux-marisa.git",
-      "branch": "4.14.336",
+      "repo": "https://github.com/DawnT112/xturbo.git",
+      "branch": "crux",
       "device": "crux",
-      "defconfig": "crux_user_defconfig"
+      "defconfig": "crux_defconfig"
     },
     "enableCcache": true,
     "enableKernelSU": true,
