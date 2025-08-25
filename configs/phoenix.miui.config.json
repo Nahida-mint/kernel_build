@@ -2,10 +2,10 @@
   {
     "kernelSource": {
       "name": "MIUI",
-      "repo": "https://github.com/Laulan56/android_kernel_xiaomi_sm8150.git",
-      "branch": "crux",
+      "repo": "https://github.com/DawnT112/crux-marisa.git",
+      "branch": "4.14.336",
       "device": "crux",
-      "defconfig": "crux_defconfig"
+      "defconfig": "crux_user_defconfig"
     },
     "enableCcache": true,
     "enableKernelSU": true,
