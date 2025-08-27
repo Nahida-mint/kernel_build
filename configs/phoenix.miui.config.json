@@ -3,12 +3,12 @@
     "kernelSource": {
       "name": "MIUI",
       "repo": "https://github.com/DawnT112/crux-marisa.git",
-      "branch": "ksu",
+      "branch": "openela",
       "device": "crux",
       "defconfig": "crux_defconfig"
     },
     "enableCcache": true,
-    "enableKernelSU": false,
+    "enableKernelSU": true,
     "enableKernelSUExtPatch": false,
     "enableLXC": false,
     "toolchains": [
