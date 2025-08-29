@@ -27,13 +27,38 @@ jobs:
         run: |
           git clone --depth=1 ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} kernel-source
 
+      - name: Fix shell scripts
+        run: |
+          cd kernel-source
+          # 查找并修复可能使用 -L 选项的脚本
+          find . -name "*.sh" -exec grep -l "\-L" {} \; | while read file; do
+            echo "检查文件: $file"
+            # 移除 -L 选项或替换为 bash 兼容的选项
+            sed -i 's|/bin/sh -L|/bin/bash|g' "$file"
+            sed -i 's|#!/bin/sh -L|#!/bin/bash|g' "$file"
+          done
+          
+          # 检查 scripts/kconfig/conf 脚本
+          if [ -f scripts/kconfig/conf ]; then
+            echo "检查 scripts/kconfig/conf"
+            # 如果这是一个脚本而不是二进制文件，尝试修复
+            if head -n 1 scripts/kconfig/conf | grep -q "^#!"; then
+              sed -i 's|#!/bin/sh|#!/bin/bash|g' scripts/kconfig/conf
+            fi
+          fi
+
       - name: Build kernel
         run: |
           # 设置使用 bash 作为 shell
           export SHELL=/bin/bash
+          export CONFIG_SHELL=/bin/bash
           export KBUILD_BUILD_USER="merdeka45surh"
           export KBUILD_BUILD_HOST="workspace"
           export PATH=$GITHUB_WORKSPACE/clang/bin:${PATH}
+          
+          # 临时将 /bin/sh 链接到 bash
+          sudo ln -sf /bin/bash /bin/sh
+          
           args="                  ARCH=arm64 \
                                   O=../out \
                                   ${{ env.BUILD_ARGS }} \
@@ -41,9 +66,11 @@ jobs:
                                   CROSS_COMPILE=$GITHUB_WORKSPACE/aarch64-linux-android-4.9/bin/aarch64-linux-android- \
                                   CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/arm-linux-androideabi-4.9/bin/arm-linux-androideabi- "
           cd kernel-source
-          # 使用 bash 执行 make 命令
-          /bin/bash -c "make ${args} ${{ env.KERNEL_CONFIG }}"
-          /bin/bash -c "make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}"
+          make ${args} ${{ env.KERNEL_CONFIG }}
+          make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}
+          
+          # 恢复 /bin/sh 链接（如果需要）
+          sudo ln -sf /bin/dash /bin/sh
 
       - name: Package kernel
         run: |
