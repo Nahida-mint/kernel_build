@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-kernel:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
       - name: Setup environment
@@ -17,14 +17,12 @@ jobs:
           echo "KERNEL_CONFIG=$(cat config.env | grep -w "KERNEL_CONFIG" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "BUILD_ARGS=$(cat config.env | grep -w "BUILD_ARGS" | head -n 1 | cut -d ":" -f 2)" >> $GITHUB_ENV
 
-      - name: Install Python 2 from deadsnakes PPA
+      - name: Install Python 2
         run: |
           sudo apt-get update
-          sudo apt-get install -y software-properties-common
-          sudo add-apt-repository ppa:deadsnakes/ppa -y
-          sudo apt-get update
-          sudo apt-get install -y python2.7
-          sudo ln -sf /usr/bin/python2.7 /usr/bin/python2
+          sudo apt-get install -y python2
+          # 创建符号链接，确保 python2 命令可用
+          sudo ln -sf /usr/bin/python2 /usr/bin/python2
 
       - name: Pull toolchain
         run: |
