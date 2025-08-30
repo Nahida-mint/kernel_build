@@ -5,7 +5,7 @@ on:
 
 jobs:
   build-kernel:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Setup environment
@@ -17,18 +17,10 @@ jobs:
           echo "KERNEL_CONFIG=$(cat config.env | grep -w "KERNEL_CONFIG" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "BUILD_ARGS=$(cat config.env | grep -w "BUILD_ARGS" | head -n 1 | cut -d ":" -f 2)" >> $GITHUB_ENV
 
-      - name: Install Python 2.7 from source (simplified)
+      - name: Install Python 2 on Ubuntu 22.04
         run: |
-          # 安装基本编译依赖
           sudo apt-get update
-          sudo apt-get install -y build-essential zlib1g-dev libssl-dev libffi-dev
-          
-          # 下载预编译的 Python 2.7 二进制文件
-          wget https://github.com/vinayak-mehta/python2.7-ubuntu20.04/releases/download/v2.7.18/python2.7
-          chmod +x python2.7
-          sudo mv python2.7 /usr/bin/python2
-          
-          # 验证安装
+          sudo apt-get install -y python2
           python2 --version
 
       - name: Pull toolchain
