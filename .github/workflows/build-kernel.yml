@@ -30,7 +30,7 @@ jobs:
             rsync \
             kmod \
             cpio \
-            dwarves  # 添加 dwarves 包，它包含 pahole 工具
+            dwarves
       - name: Install Python 2 on Ubuntu 22.04
         run: |
           sudo apt-get install -y python2
@@ -51,21 +51,21 @@ jobs:
           chmod +x kernel-source/scripts/pahole-flags.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/cc-version.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/remove-stale-files 2>/dev/null || true
-- name: Build kernel
-  run: |
-    export KBUILD_BUILD_USER="merdeka45surh"
-    export KBUILD_BUILD_HOST="workspace"
-    export PATH=$GITHUB_WORKSPACE/clang/bin:${PATH}
-    args="                  ARCH=arm64 \
-                            O=../out \
-                            ${{ env.BUILD_ARGS }} \
-                            CLANG_TRIPLE=aarch64-linux-gnu- \
-                            CROSS_COMPILE=$GITHUB_WORKSPACE/aarch64-linux-android-4.9/bin/aarch64-linux-android- \
-                            CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/arm-linux-androideabi-4.9/bin/arm-linux-androideabi- \
-                            KCFLAGS=\"-fno-stack-protector\" "  # 添加这个参数强制禁用栈保护
-    cd kernel-source
-    make ${args} ${{ env.KERNEL_CONFIG }}
-    make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}
+      - name: Build kernel
+        run: |
+          export KBUILD_BUILD_USER="merdeka45surh"
+          export KBUILD_BUILD_HOST="workspace"
+          export PATH=$GITHUB_WORKSPACE/clang/bin:${PATH}
+          args="                  ARCH=arm64 \
+                                  O=../out \
+                                  ${{ env.BUILD_ARGS }} \
+                                  CLANG_TRIPLE=aarch64-linux-gnu- \
+                                  CROSS_COMPILE=$GITHUB_WORKSPACE/aarch64-linux-android-4.9/bin/aarch64-linux-android- \
+                                  CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/arm-linux-androideabi-4.9/bin/arm-linux-androideabi- \
+                                  KCFLAGS=\"-fno-stack-protector\" "  # 添加这个参数强制禁用栈保护
+          cd kernel-source
+          make ${args} ${{ env.KERNEL_CONFIG }}
+          make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}
       - name: Collect kernel artifacts
         run: |
           # 创建输出目录
