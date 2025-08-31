@@ -16,19 +16,40 @@ jobs:
           echo "KERNEL_SOURCE_BRANCH=$(cat config.env | grep -w "KERNEL_SOURCE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "KERNEL_CONFIG=$(cat config.env | grep -w "KERNEL_CONFIG" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "BUILD_ARGS=$(cat config.env | grep -w "BUILD_ARGS" | head -n 1 | cut -d ":" -f 2)" >> $GITHUB_ENV
-      - name: Install Python 2 on Ubuntu 22.04
+      - name: Install dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libncurses-dev \
+            bison \
+            flex \
+            libssl-dev \
+            libelf-dev \
+            bc \
+            rsync \
+            kmod \
+            cpio
+      - name: Install Python 2 on Ubuntu 22.04
+        run: |
           sudo apt-get install -y python2
           python2 --version
       - name: Pull toolchain
         run: |
           git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9 aarch64-linux-android-4.9
           git clone --depth=1 https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9 arm-linux-androideabi-4.9
-          mkdir clang && curl https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-vts-15.0_r5/clang-r498229b.tar.gz -RLO && tar -C clang/ -xf clang-*.tar.gz
+          mkdir clang && curl https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-vts-15.0_r5/clang-r530567.tar.gz -RLO && tar -C clang/ -xf clang-*.tar.gz
       - name: Pull kernel source
         run: |
           git clone --depth=1 ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} kernel-source
+      - name: Set script permissions
+        run: |
+          # 为所有脚本文件添加执行权限
+          find kernel-source/scripts -type f -exec chmod +x {} \;
+          # 特别处理已知的脚本文件
+          chmod +x kernel-source/scripts/pahole-flags.sh 2>/dev/null || true
+          chmod +x kernel-source/scripts/cc-version.sh 2>/dev/null || true
+          chmod +x kernel-source/scripts/remove-stale-files 2>/dev/null || true
       - name: Build kernel
         run: |
           export KBUILD_BUILD_USER="merdeka45surh"
