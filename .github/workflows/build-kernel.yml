@@ -49,91 +49,23 @@ jobs:
           make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}
 
 - name: Package kernel
-  run: |
-    # 设置变量
-    KERNEL_NAME="BloodMoon-Kernel"
-    BUILD_DATE=$(date +%Y%m%d-%H%M)
-    PACKAGE_DIR="${KERNEL_NAME}-${BUILD_DATE}"
-    
-    # 创建打包目录结构
-    mkdir -p ${PACKAGE_DIR}/{kernel,dtb,modules,scripts}
-    
-    # 复制内核镜像
-    if [[ -f out/arch/arm64/boot/Image.gz ]]; then
-      cp out/arch/arm64/boot/Image.gz ${PACKAGE_DIR}/kernel/Image.gz
-      KERNEL_IMAGE="Image.gz"
-    elif [[ -f out/arch/arm64/boot/Image ]]; then
-      cp out/arch/arm64/boot/Image ${PACKAGE_DIR}/kernel/Image
-      KERNEL_IMAGE="Image"
-    else
-      echo "Error: No kernel image found!"
-      exit 1
-    fi
-    
-    # 复制所有设备树文件
-    find out/arch/arm64/boot -name "*.dtb" -exec cp {} ${PACKAGE_DIR}/dtb/ \;
-    
-    # 复制 dtbo.img
-    if [ -f out/arch/arm64/boot/dtbo.img ]; then
-      cp out/arch/arm64/boot/dtbo.img ${PACKAGE_DIR}/dtbo.img
-    fi
-    
-    # 复制内核模块
-    if [ -d out/modules ]; then
-      cp -r out/modules/* ${PACKAGE_DIR}/modules/
-    fi
-    
-    # 创建简单的打包脚本
-    cat > ${PACKAGE_DIR}/scripts/make_bootimg.sh << 'EOF'
-#!/bin/bash
-# Simple script to create boot.img from kernel and dtb
-# Usage: ./make_bootimg.sh <device_dtb_file>
+        run: |
+          git clone --depth=1 ${{ env.ANYKERNEL_SOURCE }} -b ${{ env.ANYKERNEL_SOURCE_BRANCH }} AnyKernel3 && rm -rf AnyKernel3/.git AnyKernel3/.github AnyKernel3/LICENSE AnyKernel3/README.md
+          if [[ -f out/arch/arm64/boot/Image.gz-dtb ]]; then
+            cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/Image.gz-dtb
+          elif [[ -f out/arch/arm64/boot/Image-dtb ]]; then
+            cp out/arch/arm64/boot/Image-dtb AnyKernel3/Image-dtb
+          elif [[ -f out/arch/arm64/boot/Image.gz ]]; then
+            cp out/arch/arm64/boot/Image.gz AnyKernel3/Image.gz
+          elif [[ -f out/arch/arm64/boot/Image ]]; then
+            cp out/arch/arm64/boot/Image AnyKernel3/Image
+          fi
+          if [ -f out/arch/arm64/boot/dtbo.img ]; then
+            cp out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
+          fi
 
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 <device_dtb_file>"
-    echo "Available DTB files:"
-    ls ../dtb/
-    exit 1
-fi
-
-DTB_FILE=$1
-KERNEL_IMAGE="../kernel/Image.gz"  # 或 Image，根据需要修改
-
-if [ ! -f "../dtb/$DTB_FILE" ]; then
-    echo "Error: DTB file $DTB_FILE not found!"
-    exit 1
-fi
-
-# 这里添加制作 boot.img 的命令
-# 例如使用 mkbootimg 工具:
-# mkbootimg --kernel $KERNEL_IMAGE --dtb ../dtb/$DTB_FILE --output boot.img
-
-echo "Would create boot.img using:"
-echo "  Kernel: $KERNEL_IMAGE"
-echo "  DTB: ../dtb/$DTB_FILE"
-EOF
-    
-    chmod +x ${PACKAGE_DIR}/scripts/make_bootimg.sh
-    
-    # 创建构建信息文件
-    cat > ${PACKAGE_DIR}/build-info.txt << EOF
-Kernel: ${KERNEL_NAME}
-Build date: ${BUILD_DATE}
-Git commit: ${{ github.sha }}
-Kernel image: ${KERNEL_IMAGE}
-EOF
-    
-    # 显示打包内容
-    echo "Package contents:"
-    tree ${PACKAGE_DIR}
-    
-    # 创建ZIP包（可选）
-    zip -r ${PACKAGE_DIR}.zip ${PACKAGE_DIR}
-
-- name: Upload kernel to artifact
-  uses: actions/upload-artifact@v4
-  with:
-    name: BloodMoon-Kernel-Build-$(date +%Y%m%d-%H%M)
-    path: |
-      BloodMoon-Kernel-*/BloodMoon-Kernel-*.zip
-      BloodMoon-Kernel-*/
+      - name: Upload kernel to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: -BloodMoon-KernelSU-Next-seflbuild
+          path: AnyKernel3/*
