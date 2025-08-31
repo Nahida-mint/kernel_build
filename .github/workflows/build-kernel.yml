@@ -32,11 +32,11 @@ jobs:
       - name: Set script permissions
         run: |
           # 为所有脚本文件添加执行权限
-          find kernel-source/scripts -name "*.sh" -exec chmod +x {} \;
-          find kernel-source/scripts -name "*.py" -exec chmod +x {} \;
-          # 特别处理可能没有扩展名的脚本文件
+          find kernel-source/scripts -type f -exec chmod +x {} \;
+          # 特别处理已知的脚本文件
           chmod +x kernel-source/scripts/pahole-flags.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/cc-version.sh 2>/dev/null || true
+          chmod +x kernel-source/scripts/remove-stale-files 2>/dev/null || true
       - name: Build kernel
         run: |
           export KBUILD_BUILD_USER="merdeka45surh"
