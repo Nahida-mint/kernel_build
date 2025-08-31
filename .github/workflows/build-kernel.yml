@@ -29,7 +29,13 @@ jobs:
             bc \
             rsync \
             kmod \
-            cpio
+            cpio \
+            gcc-aarch64-linux-gnu \
+            binutils-aarch64-linux-gnu \
+            libc6-dev-arm64-cross \
+            gcc-arm-linux-gnueabi \
+            binutils-arm-linux-gnueabi \
+            libc6-dev-armel-cross
       - name: Install Python 2 on Ubuntu 22.04
         run: |
           sudo apt-get install -y python2
@@ -41,7 +47,13 @@ jobs:
           mkdir clang && curl https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-vts-15.0_r5/clang-r498229b.tar.gz -RLO && tar -C clang/ -xf clang-*.tar.gz
       - name: Pull kernel source
         run: |
-          git clone --depth=1 ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} kernel-source
+          git clone ${{ env.KERNEL_SOURCE }} -b ${{ env.KERNEL_SOURCE_BRANCH }} kernel-source
+      - name: Check VDSO files
+        run: |
+          echo "Checking VDSO directory structure..."
+          ls -la kernel-source/arch/arm64/kernel/vdso/ || echo "VDSO directory not found"
+          echo "Checking for VDSO linker script..."
+          find kernel-source/arch/arm64/kernel/vdso -name "*.lds*" || echo "No VDSO linker script found"
       - name: Set script permissions
         run: |
           # 为所有脚本文件添加执行权限
@@ -50,19 +62,108 @@ jobs:
           chmod +x kernel-source/scripts/pahole-flags.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/cc-version.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/remove-stale-files 2>/dev/null || true
+      - name: Prepare VDSO build environment
+        run: |
+          # 确保 VDSO 目录存在
+          mkdir -p kernel-source/arch/arm64/kernel/vdso
+          
+          # 检查并修复 VDSO 相关的 Makefile
+          if [ -f "kernel-source/arch/arm64/kernel/vdso/Makefile" ]; then
+            echo "VDSO Makefile exists"
+          else
+            echo "Warning: VDSO Makefile not found, attempting to create basic structure"
+            # 创建基本的 VDSO Makefile（如果缺失）
+            cat > kernel-source/arch/arm64/kernel/vdso/Makefile << 'EOF'
+# SPDX-License-Identifier: GPL-2.0
+
+# Absolute relocation type $(ARCH_REL_TYPE_ABS) needs to be defined before
+# the inclusion of generic Makefile.
+ARCH_REL_TYPE_ABS := R_AARCH64_JUMP_SLOT|R_AARCH64_GLOB_DAT|R_AARCH64_ABS64
+include $(srctree)/lib/vdso/Makefile
+
+# Symbols present in the vdso
+vdso-syms += gettimeofday
+vdso-syms += clock_gettime
+vdso-syms += clock_getres
+vdso-syms += elfnote
+
+# Files to link into the vdso
+obj-vdso := $(patsubst %, %.o, $(vdso-syms))
+
+# Build rules
+targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds
+obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
+
+ccflags-y := -fno-stack-protector -DDISABLE_BRANCH_PROFILING
+
+ifneq ($(c-gettimeofday-y),)
+  CFLAGS_vgettimeofday.o = -include $(c-gettimeofday-y)
+endif
+
+# Force dependency
+$(obj)/vdso.o: $(obj)/vdso.lds
+
+# Link rule for the .so file
+$(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) FORCE
+	$(call if_changed,vdsold)
+
+# Strip rule for the .so file
+$(obj)/%.so: OBJCOPYFLAGS := -S
+$(obj)/%.so: $(obj)/%.so.dbg FORCE
+	$(call if_changed,objcopy)
+
+# Actual build commands
+quiet_cmd_vdsold = VDSOL   $@
+      cmd_vdsold = $(CC) $(c_flags) -Wl,-T,$(filter-out FORCE,$^) -o $@
+
+quiet_cmd_objcopy = OBJCOPY $@
+      cmd_objcopy = $(OBJCOPY) $(OBJCOPYFLAGS) $< $@
+
+# Install commands
+quiet_cmd_vdso_install = INSTALL $@
+      cmd_vdso_install = cp $< $@
+
+VDSO_LDFLAGS = -shared -s -soname=linux-vdso.so.1 --hash-style=sysv --build-id
+
+# Don't omit frame pointers for efficiency
+CFLAGS_REMOVE_vgettimeofday.o = -fomit-frame-pointer
+
+# Force -O2 to avoid libgcc dependencies
+CFLAGS_REMOVE_vgettimeofday.o += -Os
+CFLAGS_vgettimeofday.o += -O2
+EOF
+          fi
       - name: Build kernel
         run: |
           export KBUILD_BUILD_USER="merdeka45surh"
           export KBUILD_BUILD_HOST="workspace"
           export PATH=$GITHUB_WORKSPACE/clang/bin:${PATH}
+          
+          # 设置 VDSO 构建所需的环境变量
+          export CROSS_COMPILE_VDSO=aarch64-linux-gnu-
+          export CROSS_COMPILE_COMPAT_VDSO=arm-linux-gnueabi-
+          
           args="                  ARCH=arm64 \
                                   O=../out \
                                   ${{ env.BUILD_ARGS }} \
                                   CLANG_TRIPLE=aarch64-linux-gnu- \
                                   CROSS_COMPILE=$GITHUB_WORKSPACE/aarch64-linux-android-4.9/bin/aarch64-linux-android- \
-                                  CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/arm-linux-androideabi-4.9/bin/arm-linux-androideabi- "
+                                  CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/arm-linux-androideabi-4.9/bin/arm-linux-androideabi- \
+                                  CROSS_COMPILE_VDSO=aarch64-linux-gnu- \
+                                  CROSS_COMPILE_COMPAT_VDSO=arm-linux-gnueabi- "
           cd kernel-source
+          
+          # 应用配置
           make ${args} ${{ env.KERNEL_CONFIG }}
+          
+          # 确保 VDSO 配置已启用
+          ./scripts/config --file ../out/.config -e CONFIG_COMPAT_VDSO
+          ./scripts/config --file ../out/.config -e CONFIG_ARM64_VDSO
+          
+          # 重新生成配置
+          make ${args} olddefconfig
+          
+          # 构建内核
           make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}
       - name: Collect kernel artifacts
         run: |
