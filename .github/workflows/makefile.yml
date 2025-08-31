@@ -11,8 +11,8 @@ jobs:
       - name: Checkout kernel source
         uses: actions/checkout@v4
         with:
-          repository: Nahida-mint/Android-kernel-5.15
-          ref: kernel
+          repository: Nahida-mint/kernel-5.15
+          ref: master
           path: kernel-source
           
       - name: Set script permissions
