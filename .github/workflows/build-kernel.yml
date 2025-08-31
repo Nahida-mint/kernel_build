@@ -45,52 +45,23 @@ jobs:
           make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}
 
       - name: Package kernel
-  run: |
-    # 创建输出目录
-    mkdir -p kernel_output
+        run: |
+          git clone --depth=1 ${{ env.ANYKERNEL_SOURCE }} -b ${{ env.ANYKERNEL_SOURCE_BRANCH }} AnyKernel3 && rm -rf AnyKernel3/.git AnyKernel3/.github AnyKernel3/LICENSE AnyKernel3/README.md
+          if [[ -f out/arch/arm64/boot/Image.gz-dtb ]]; then
+            cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/Image.gz-dtb
+          elif [[ -f out/arch/arm64/boot/Image-dtb ]]; then
+            cp out/arch/arm64/boot/Image-dtb AnyKernel3/Image-dtb
+          elif [[ -f out/arch/arm64/boot/Image.gz ]]; then
+            cp out/arch/arm64/boot/Image.gz AnyKernel3/Image.gz
+          elif [[ -f out/arch/arm64/boot/Image ]]; then
+            cp out/arch/arm64/boot/Image AnyKernel3/Image
+          fi
+          if [ -f out/arch/arm64/boot/dtbo.img ]; then
+            cp out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
+          fi
 
-    # 复制内核镜像（优先使用未拼接的版本）
-    if [[ -f out/arch/arm64/boot/Image.gz ]]; then
-      cp out/arch/arm64/boot/Image.gz kernel_output/Image.gz
-      echo "Using Image.gz (uncompressed kernel)"
-    elif [[ -f out/arch/arm64/boot/Image ]]; then
-      cp out/arch/arm64/boot/Image kernel_output/Image
-      echo "Using Image (uncompressed kernel)"
-    elif [[ -f out/arch/arm64/boot/Image.gz-dtb ]]; then
-      cp out/arch/arm64/boot/Image.gz-dtb kernel_output/Image.gz-dtb
-      echo "Using Image.gz-dtb (appended DTB)"
-    elif [[ -f out/arch/arm64/boot/Image-dtb ]]; then
-      cp out/arch/arm64/boot/Image-dtb kernel_output/Image-dtb
-      echo "Using Image-dtb (appended DTB)"
-    fi
-
-    # 复制所有设备树文件 (.dtb)
-    mkdir -p kernel_output/dtb
-    find out/arch/arm64/boot -name "*.dtb" -exec cp {} kernel_output/dtb/ \;
-    echo "Copied $(ls -1 kernel_output/dtb/ | wc -l) DTB files"
-
-    # 复制 dtbo.img（如果存在）
-    if [ -f out/arch/arm64/boot/dtbo.img ]; then
-      cp out/arch/arm64/boot/dtbo.img kernel_output/dtbo.img
-      echo "Copied dtbo.img"
-    fi
-
-    # 复制内核模块（如果存在）
-    if [ -d out/modules ]; then
-      cp -r out/modules kernel_output/
-      echo "Copied kernel modules"
-    fi
-
-    # 显示输出目录内容
-    echo "Output directory contents:"
-    ls -la kernel_output/
-    if [ -d kernel_output/dtb ]; then
-      echo "DTB directory contents:"
-      ls -la kernel_output/dtb/
-    fi
-
-- name: Upload kernel to artifact
-  uses: actions/upload-artifact@v4
-  with:
-    name: BloodMoon-Kernel-Raw-Files
-    path: kernel_output/*
+      - name: Upload kernel to artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: -BloodMoon-KernelSU-Next-seflbuild
+          path: AnyKernel3/*
