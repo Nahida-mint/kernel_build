@@ -16,9 +16,22 @@ jobs:
           echo "KERNEL_SOURCE_BRANCH=$(cat config.env | grep -w "KERNEL_SOURCE_BRANCH" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "KERNEL_CONFIG=$(cat config.env | grep -w "KERNEL_CONFIG" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
           echo "BUILD_ARGS=$(cat config.env | grep -w "BUILD_ARGS" | head -n 1 | cut -d ":" -f 2)" >> $GITHUB_ENV
-      - name: Install Python 2 on Ubuntu 22.04
+      - name: Install dependencies
         run: |
           sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libncurses-dev \
+            bison \
+            flex \
+            libssl-dev \
+            libelf-dev \
+            bc \
+            rsync \
+            kmod \
+            cpio
+      - name: Install Python 2 on Ubuntu 22.04
+        run: |
           sudo apt-get install -y python2
           python2 --version
       - name: Pull toolchain
