@@ -29,7 +29,8 @@ jobs:
             bc \
             rsync \
             kmod \
-            cpio
+            cpio \
+            dwarves  # 添加 dwarves 包，它包含 pahole 工具
       - name: Install Python 2 on Ubuntu 22.04
         run: |
           sudo apt-get install -y python2
