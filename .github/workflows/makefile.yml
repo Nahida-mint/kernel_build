@@ -25,8 +25,8 @@ jobs:
       - name: Build Kernel
         uses: dabao1955/kernel_build_action@main
         with:
-          kernel-url: https://github.com/Nahida-mint/kernel-5.15
-          kernel-branch: master
+          kernel-url: https://github.com/Nahida-mint/kernel
+          kernel-branch: 2121
           config: crux_defconfig
           arch: arm64
           aosp-gcc: true
