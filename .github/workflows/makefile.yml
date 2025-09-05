@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Nahida-mint/kernel
-          ref: A16-13
+          ref: 1111
           path: kernel-source
           
       - name: Set script permissions
@@ -26,7 +26,7 @@ jobs:
         uses: dabao1955/kernel_build_action@main
         with:
           kernel-url: https://github.com/Nahida-mint/kernel
-          kernel-branch: A16-13
+          kernel-branch: 1111
           config: crux_defconfig
           arch: arm64
           aosp-gcc: true
