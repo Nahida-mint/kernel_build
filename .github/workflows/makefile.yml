@@ -8,25 +8,11 @@ jobs:
     name: Build Kernel
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout kernel source
-        uses: actions/checkout@v4
-        with:
-          repository: Nahida-mint/kernel
-          ref: 1111
-          path: kernel-source
-          
-      - name: Set script permissions
-        run: |
-          chmod +x $GITHUB_WORKSPACE/kernel-source/scripts/*.sh
-          chmod +x $GITHUB_WORKSPACE/kernel-source/scripts/*.py
-          find $GITHUB_WORKSPACE/kernel-source/scripts/ -name "*.sh" -exec chmod +x {} \;
-          find $GITHUB_WORKSPACE/kernel-source/scripts/ -name "*.py" -exec chmod +x {} \;
-          
-      - name: Build Kernel
+      - name: Build
         uses: dabao1955/kernel_build_action@main
         with:
-          kernel-url: https://github.com/Nahida-mint/kernel
-          kernel-branch: 1111
+          kernel-url: https://github.com/Nahida-mint/crux
+          kernel-branch: bpf
           config: crux_defconfig
           arch: arm64
           aosp-gcc: true
