@@ -12,7 +12,7 @@ jobs:
         uses: dabao1955/kernel_build_action@main
         with:
           kernel-url: https://github.com/Nahida-mint/kernel
-          kernel-branch: A16
+          kernel-branch: 2
           config: crux_defconfig
           arch: arm64
           aosp-gcc: true
