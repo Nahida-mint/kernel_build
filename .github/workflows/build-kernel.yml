@@ -51,6 +51,11 @@ jobs:
           chmod +x kernel-source/scripts/pahole-flags.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/cc-version.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/remove-stale-files 2>/dev/null || true
+      - name: Fix kernel config issues
+        run: |
+          echo "CONFIG_CC_STACKPROTECTOR=n" >> arch/arm64/configs/${{ env.KERNEL_CONFIG }}
+          echo "CONFIG_CC_STACKPROTECTOR_STRONG=n" >> arch/arm64/configs/${{ env.KERNEL_CONFIG }}
+          echo "CONFIG_CC_STACKPROTECTOR_NONE=y" >> arch/arm64/configs/${{ env.KERNEL_CONFIG }}
       - name: Build kernel
         run: |
           export KBUILD_BUILD_USER="merdeka45surh"
@@ -62,7 +67,7 @@ jobs:
                                   CLANG_TRIPLE=aarch64-linux-gnu- \
                                   CROSS_COMPILE=$GITHUB_WORKSPACE/aarch64-linux-android-4.9/bin/aarch64-linux-android- \
                                   CROSS_COMPILE_ARM32=$GITHUB_WORKSPACE/arm-linux-androideabi-4.9/bin/arm-linux-androideabi- \
-                                  KCFLAGS=\"-fno-stack-protector -Wno-frame-larger-than\" "  # 禁用栈帧大小警告  # 强制禁用栈保护
+                                  KCFLAGS=\"-Wno-frame-larger-than\" "  # 只保留这个参数
           cd kernel-source
           make ${args} ${{ env.KERNEL_CONFIG }}
           make -j$(($(getconf _NPROCESSORS_ONLN) * 2)) ${args}
