@@ -51,11 +51,6 @@ jobs:
           chmod +x kernel-source/scripts/pahole-flags.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/cc-version.sh 2>/dev/null || true
           chmod +x kernel-source/scripts/remove-stale-files 2>/dev/null || true
-      - name: Fix kernel config issues
-        run: |
-          echo "CONFIG_CC_STACKPROTECTOR=n" >> arch/arm64/configs/${{ env.KERNEL_CONFIG }}
-          echo "CONFIG_CC_STACKPROTECTOR_STRONG=n" >> arch/arm64/configs/${{ env.KERNEL_CONFIG }}
-          echo "CONFIG_CC_STACKPROTECTOR_NONE=y" >> arch/arm64/configs/${{ env.KERNEL_CONFIG }}
       - name: Build kernel
         run: |
           export KBUILD_BUILD_USER="merdeka45surh"
