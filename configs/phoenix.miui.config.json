@@ -2,10 +2,10 @@
   {
     "kernelSource": {
       "name": "MIUI",
-      "repo": "https://github.com/HeliumStudio-Dev/kernel_xiaomi_raphael.git",
-      "branch": "rikka-v2",
-      "device": "raphael",
-      "defconfig": "raphael_defconfig"
+      "repo": "https://github.com/DawnT112/crux-marisa.git",
+      "branch": "f2fs",
+      "device": "crux",
+      "defconfig": "crux_defconfig"
     },
     "enableCcache": true,
     "enableKernelSU": false,
