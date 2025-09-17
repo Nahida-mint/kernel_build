@@ -2,7 +2,7 @@
   {
     "kernelSource": {
       "name": "MIUI",
-      "repo": "https://github.com/DawnT112/crux-marisa.git",
+      "repo": "https://github.com/Nahida-mint/kernel-1.git",
       "branch": "f2fs",
       "device": "crux",
       "defconfig": "crux_defconfig"
