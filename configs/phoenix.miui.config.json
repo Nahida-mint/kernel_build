@@ -1,9 +1,9 @@
 [
   {
     "kernelSource": {
-      "name": "MIUI",
-      "repo": "https://github.com/Nahida-mint/kernel-1.git",
-      "branch": "f2fs",
+      "name": "HyperOS",
+      "repo": "https://github.com/Nahida-mint/kernel.git",
+      "branch": "A16",
       "device": "crux",
       "defconfig": "crux_defconfig"
     },
