@@ -2,8 +2,8 @@
   {
     "kernelSource": {
       "name": "HyperOS",
-      "repo": "https://github.com/Nahida-mint/kernel49.git",
-      "branch": "A15",
+      "repo": "https://github.com/Nahida-mint/kernel.git",
+      "branch": "RisingOS-kernel",
       "device": "crux",
       "defconfig": "crux_defconfig"
     },
