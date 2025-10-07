@@ -3,7 +3,7 @@
     "kernelSource": {
       "name": "HyperOS",
       "repo": "https://github.com/Nahida-mint/kernel.git",
-      "branch": "kernel",
+      "branch": "A16-Bata-21",
       "device": "crux",
       "defconfig": "crux_defconfig"
     },
